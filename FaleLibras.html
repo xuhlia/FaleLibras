@@ -1,0 +1,520 @@
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="Style.css">
+<title>FaleLibras</title>
+<style>
+  body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    height: 100%;
+    background-color: #fcf3e3;
+  }
+  #app {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .header {
+    background-color: #00b388;
+    color: white;
+    text-align: center;
+    padding: 15px;
+    font-size: 24px;
+    font-weight: bold;
+  }
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+  }
+  .menu-button {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+  }
+  .theme-list, .lesson-list{
+    list-style-type: none;
+    padding: 0;
+  }
+  .theme-item, .lesson-item,{
+    background-color: #ffffff;
+    margin-bottom: 15px;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+  }
+  .theme-title, .lesson-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #000;
+  }
+  .progress-bar {
+    width: 100px;
+    height: 10px;
+    background-color: #b2e7da;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .progress {
+    height: 100%;
+    background-color: #00b388;
+    width: 0%;
+  }
+  .question-container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  .question-image {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    margin-bottom: 20px;
+  }
+  .options-list {
+    list-style-type: none;
+    padding: 0;
+  }
+  .option-item {
+    background-color: #d2e6e1;
+    margin-bottom: 10px;
+    padding: 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #00b388;
+  }
+  .option-item:hover {
+    background-color: #70e0c4;
+  }
+  .correct {
+    background-color: #4CAF50;
+    color: white;
+  }
+  .incorrect {
+    background-color: #f44336;
+    color: white;
+  }
+  .nav-buttons {
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+    background-color: #00b388;
+  }
+  .nav-button {
+    color: white;
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  .profile-container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  .profile-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin-bottom: 15px;
+  }
+  .profile-name {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  .profile-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+  }
+  .stat-item {
+    text-align: center;
+  }
+  .stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #00b388;
+  }
+  .stat-label {
+    font-size: 14px;
+    color: #757575;
+  }
+  .lesson-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  .lesson-content h2 {
+    color: #00b388;
+    margin-bottom: 15px;
+  }
+  .lesson-content p, .lesson-content ul {
+    margin-bottom: 10px;
+  }
+  .lesson-content img {
+    display: block;
+    margin: 20px auto;
+  }
+  h2{
+    color: #00b388;
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <button class="menu-button" onclick="showMenu()">☰</button>
+    FaleLibras
+  </div>
+  <div class="content" id="content">
+    <!-- Content will be dynamically inserted here -->
+  </div>
+  <div class="nav-buttons">
+    <button class="nav-button" onclick="app.showMenu()">Temas</button>
+    <button class="nav-button" onclick="app.showLessons()">Lições</button>
+    <button class="nav-button" onclick="app.showProfile()">Perfil</button>
+  </div>
+</div>
+
+<script>
+class LibrasApp {
+  constructor() {
+    this.currentTheme = null;
+    this.currentQuestion = 0;
+    this.themes = [
+      { id: 1, title: 'Alfabeto', progress: 0 },
+      { id: 2, title: 'Números', progress: 0 },
+      { id: 3, title: 'Cumprimentos', progress: 0 },
+      { id: 4, title: 'Família', progress: 0 },
+      { id: 5, title: 'Cores', progress: 0 },
+    ];
+    this.questions = {
+      1: [
+        { image: 'letra_a.svg', question: 'Qual letra está sendo representada?', options: ['A', 'B', 'C', 'D'], correctAnswer: 'A' },
+        { image: 'letra_b.svg', question: 'Qual letra está sendo representada?', options: ['A', 'B', 'C', 'D'], correctAnswer: 'B' },
+        { image: 'letra_c.svg', question: 'Qual letra está sendo representada?', options: ['A', 'B', 'C', 'D'], correctAnswer: 'C' },
+        { image: 'letra_d.svg', question: 'Qual letra está sendo representada?', options: ['A', 'B', 'C', 'D'], correctAnswer: 'D' },
+        { image: 'letra_e.svg', question: 'Qual letra está sendo representada?', options: ['E', 'F', 'G', 'H'], correctAnswer: 'E' },
+        { image: 'letra_f.svg', question: 'Qual letra está sendo representada?', options: ['E', 'F', 'G', 'H'], correctAnswer: 'F' },
+        { image: 'letra_g.svg', question: 'Qual letra está sendo representada?', options: ['E', 'F', 'G', 'H'], correctAnswer: 'G' },
+        { image: 'letra_h.svg', question: 'Qual letra está sendo representada?', options: ['E', 'F', 'G', 'H'], correctAnswer: 'H' },
+        { image: 'letra_i.svg', question: 'Qual letra está sendo representada?', options: ['I', 'J', 'K', 'L'], correctAnswer: 'I' },
+        { image: 'letra_j.svg', question: 'Qual letra está sendo representada?', options: ['I', 'J', 'K', 'L'], correctAnswer: 'J' },
+        { image: 'letra_k.svg', question: 'Qual letra está sendo representada?', options: ['I', 'J', 'K', 'L'], correctAnswer: 'K' },
+        { image: 'letra_l.svg', question: 'Qual letra está sendo representada?', options: ['I', 'J', 'K', 'L'], correctAnswer: 'L' },
+        { image: 'letra_m.svg', question: 'Qual letra está sendo representada?', options: ['M', 'N', 'O', 'P'], correctAnswer: 'M' },
+        { image: 'letra_n.svg', question: 'Qual letra está sendo representada?', options: ['M', 'N', 'O', 'P'], correctAnswer: 'N' },
+        { image: 'letra_o.svg', question: 'Qual letra está sendo representada?', options: ['M', 'N', 'O', 'P'], correctAnswer: 'O' },
+      ],
+      2: [
+        { image: 'numero_1.svg', question: 'Qual número está sendo representado?', options: ['1', '2', '3', '4'], correctAnswer: '1' },
+        { image: 'numero_2.svg', question: 'Qual número está sendo representado?', options: ['1', '2', '3', '4'], correctAnswer: '2' },
+        { image: 'numero_3.svg', question: 'Qual número está sendo representado?', options: ['1', '2', '3', '4'], correctAnswer: '3' },
+        { image: 'numero_4.svg', question: 'Qual número está sendo representado?', options: ['1', '2', '3', '4'], correctAnswer: '4' },
+        { image: 'numero_5.svg', question: 'Qual número está sendo representado?', options: ['5', '6', '7', '8'], correctAnswer: '5' },
+        { image: 'numero_6.svg', question: 'Qual número está sendo representado?', options: ['5', '6', '7', '8'], correctAnswer: '6' },
+        { image: 'numero_7.svg', question: 'Qual número está sendo representado?', options: ['5', '6', '7', '8'], correctAnswer: '7' },
+        { image: 'numero_8.svg', question: 'Qual número está sendo representado?', options: ['5', '6', '7', '8'], correctAnswer: '8' },
+        { image: 'numero_9.svg', question: 'Qual número está sendo representado?', options: ['9', '10', '11', '12'], correctAnswer: '9' },
+        { image: 'numero_10.svg', question: 'Qual número está sendo representado?', options: ['9', '10', '11', '12'], correctAnswer: '10' },
+        { image: 'numero_11.svg', question: 'Qual número está sendo representado?', options: ['9', '10', '11', '12'], correctAnswer: '11' },
+        { image: 'numero_12.svg', question: 'Qual número está sendo representado?', options: ['9', '10', '11', '12'], correctAnswer: '12' },
+        { image: 'numero_13.svg', question: 'Qual número está sendo representado?', options: ['13', '14', '15', '16'], correctAnswer: '13' },
+        { image: 'numero_14.svg', question: 'Qual número está sendo representado?', options: ['13', '14', '15', '16'], correctAnswer: '14' },
+        { image: 'numero_15.svg', question: 'Qual número está sendo representado?', options: ['13', '14', '15', '16'], correctAnswer: '15' },
+      ],
+      3: [
+        { image: 'ola.svg', question: 'Qual cumprimento está sendo representado?', options: ['Olá', 'Tchau', 'Bom dia', 'Boa noite'], correctAnswer: 'Olá' },
+        { image: 'tchau.svg', question: 'Qual cumprimento está sendo representado?', options: ['Olá', 'Tchau', 'Bom dia', 'Boa noite'], correctAnswer: 'Tchau' },
+        { image: 'bom_dia.svg', question: 'Qual cumprimento está sendo representado?', options: ['Olá', 'Tchau', 'Bom dia', 'Boa noite'], correctAnswer: 'Bom dia' },
+        { image: 'boa_noite.svg', question: 'Qual cumprimento está sendo representado?', options: ['Olá', 'Tchau', 'Bom dia', 'Boa noite'], correctAnswer: 'Boa noite' },
+        { image: 'boa_tarde.svg', question: 'Qual cumprimento está sendo representado?', options: ['Boa tarde', 'Como vai?', 'Prazer', 'Até logo'], correctAnswer: 'Boa tarde' },
+        { image: 'como_vai.svg', question: 'Qual cumprimento está sendo representado?', options: ['Boa tarde', 'Como vai?', 'Prazer', 'Até logo'], correctAnswer: 'Como vai?' },
+        { image: 'prazer.svg', question: 'Qual cumprimento está sendo representado?', options: ['Boa tarde', 'Como vai?', 'Prazer', 'Até logo'], correctAnswer: 'Prazer' },
+        { image: 'ate_logo.svg', question: 'Qual cumprimento está sendo representado?', options: ['Boa tarde', 'Como vai?', 'Prazer', 'Até logo'], correctAnswer: 'Até logo' },
+        { image: 'tudo_bem.svg', question: 'Qual cumprimento está sendo representado?', options: ['Tudo bem?', 'Obrigado', 'Por favor', 'Desculpe'], correctAnswer: 'Tudo bem?' },
+        { image: 'obrigado.svg', question: 'Qual cumprimento está sendo representado?', options: ['Tudo bem?', 'Obrigado', 'Por favor', 'Desculpe'], correctAnswer: 'Obrigado' },
+        { image: 'por_favor.svg', question: 'Qual cumprimento está sendo representado?', options: ['Tudo bem?', 'Obrigado', 'Por favor', 'Desculpe'], correctAnswer: 'Por favor' },
+        { image: 'desculpe.svg', question: 'Qual cumprimento está sendo representado?', options: ['Tudo bem?', 'Obrigado', 'Por favor', 'Desculpe'], correctAnswer: 'Desculpe' },
+        { image: 'bom_dia_2.svg', question: 'Qual cumprimento está sendo representado?', options: ['Bom dia', 'Boa tarde', 'Boa noite', 'Olá'], correctAnswer: 'Bom dia' },
+        { image: 'boa_tarde_2.svg', question: 'Qual cumprimento está sendo representado?', options: ['Bom dia', 'Boa tarde', 'Boa noite', 'Olá'], correctAnswer: 'Boa tarde' },
+        { image: 'boa_noite_2.svg', question: 'Qual cumprimento está sendo representado?', options: ['Bom dia', 'Boa tarde', 'Boa noite', 'Olá'], correctAnswer: 'Boa noite' },
+      ],
+      4: [
+        { image: 'mae.svg', question: 'Qual membro da família está sendo representado?', options: ['Mãe', 'Pai', 'Irmã', 'Irmão'], correctAnswer: 'Mãe' },
+        { image: 'pai.svg', question: 'Qual membro da família está sendo representado?', options: ['Mãe', 'Pai', 'Irmã', 'Irmão'], correctAnswer: 'Pai' },
+        { image: 'irma.svg', question: 'Qual membro da família está sendo representado?', options: ['Mãe', 'Pai', 'Irmã', 'Irmão'], correctAnswer: 'Irmã' },
+        { image: 'irmao.svg', question: 'Qual membro da família está sendo representado?', options: ['Mãe', 'Pai', 'Irmã', 'Irmão'], correctAnswer: 'Irmão' },
+        { image: 'avo.svg', question: 'Qual membro da família está sendo representado?', options: ['Avô', 'Avó', 'Tio', 'Tia'], correctAnswer: 'Avô' },
+        { image: 'avo_f.svg', question: 'Qual membro da família está sendo representado?', options: ['Avô', 'Avó', 'Tio', 'Tia'], correctAnswer: 'Avó' },
+        { image: 'tio.svg', question: 'Qual membro da família está sendo representado?', options: ['Avô', 'Avó', 'Tio', 'Tia'], correctAnswer: 'Tio' },
+        { image: 'tia.svg', question: 'Qual membro da família está sendo representado?', options: ['Avô', 'Avó', 'Tio', 'Tia'], correctAnswer: 'Tia' },
+        { image: 'primo.svg', question: 'Qual membro da família está sendo representado?', options: ['Primo', 'Prima', 'Sobrinho', 'Sobrinha'], correctAnswer: 'Primo' },
+        { image: 'prima.svg', question: 'Qual membro da família está sendo representado?', options: ['Primo', 'Prima', 'Sobrinho', 'Sobrinha'], correctAnswer: 'Prima' },
+        { image: 'sobrinho.svg', question: 'Qual membro da família está sendo representado?', options: ['Primo', 'Prima', 'Sobrinho', 'Sobrinha'], correctAnswer: 'Sobrinho' },
+        { image: 'sobrinha.svg', question: 'Qual membro da família está sendo representado?', options: ['Primo', 'Prima', 'Sobrinho', 'Sobrinha'], correctAnswer: 'Sobrinha' },
+        { image: 'filho.svg', question: 'Qual membro da família está sendo representado?', options: ['Filho', 'Filha', 'Neto', 'Neta'], correctAnswer: 'Filho' },
+        { image: 'filha.svg', question: 'Qual membro da família está sendo representado?', options: ['Filho', 'Filha', 'Neto', 'Neta'], correctAnswer: 'Filha' },
+        { image: 'neto.svg', question: 'Qual membro da família está sendo representado?', options: ['Filho', 'Filha', 'Neto', 'Neta'], correctAnswer: 'Neto' },
+      ],
+      5: [
+        { image: 'vermelho.svg', question: 'Qual cor está sendo representada?', options: ['Vermelho', 'Azul', 'Amarelo', 'Verde'], correctAnswer: 'Vermelho' },
+        { image: 'azul.svg', question: 'Qual cor está sendo representada?', options: ['Vermelho', 'Azul', 'Amarelo', 'Verde'], correctAnswer: 'Azul' },
+        { image: 'amarelo.svg', question: 'Qual cor está sendo representada?', options: ['Vermelho', 'Azul', 'Amarelo', 'Verde'], correctAnswer: 'Amarelo' },
+        { image: 'verde.svg', question: 'Qual cor está sendo representada?', options: ['Vermelho', 'Azul', 'Amarelo', 'Verde'], correctAnswer: 'Verde' },
+        { image: 'laranja.svg', question: 'Qual cor está sendo representada?', options: ['Laranja', 'Roxo', 'Rosa', 'Marrom'], correctAnswer: 'Laranja' },
+        { image: 'roxo.svg', question: 'Qual cor está sendo representada?', options: ['Laranja', 'Roxo', 'Rosa', 'Marrom'], correctAnswer: 'Roxo' },
+        { image: 'rosa.svg', question: 'Qual cor está sendo representada?', options: ['Laranja', 'Roxo', 'Rosa', 'Marrom'], correctAnswer: 'Rosa' },
+        { image: 'marrom.svg', question: 'Qual cor está sendo representada?', options: ['Laranja', 'Roxo', 'Rosa', 'Marrom'], correctAnswer: 'Marrom' },
+        { image: 'preto.svg', question: 'Qual cor está sendo representada?', options: ['Preto', 'Branco', 'Cinza', 'Bege'], correctAnswer: 'Preto' },
+        { image: 'branco.svg', question: 'Qual cor está sendo representada?', options: ['Preto', 'Branco', 'Cinza', 'Bege'], correctAnswer: 'Branco' },
+        { image: 'cinza.svg', question: 'Qual cor está sendo representada?', options: ['Preto', 'Branco', 'Cinza', 'Bege'], correctAnswer: 'Cinza' },
+        { image: 'bege.svg', question: 'Qual cor está sendo representada?', options: ['Preto', 'Branco', 'Cinza', 'Bege'], correctAnswer: 'Bege' },
+        { image: 'dourado.svg', question: 'Qual cor está sendo representada?', options: ['Dourado', 'Prateado', 'Bronze', 'Turquesa'], correctAnswer: 'Dourado' },
+        { image: 'prateado.svg', question: 'Qual cor está sendo representada?', options: ['Dourado', 'Prateado', 'Bronze', 'Turquesa'], correctAnswer: 'Prateado' },
+        { image: 'bronze.svg', question: 'Qual cor está sendo representada?', options: ['Dourado', 'Prateado', 'Bronze', 'Turquesa'], correctAnswer: 'Bronze' },
+      ],
+    };
+    this.userProfile = {
+      name: "Usuário",
+      xp: 0,
+      level: 1,
+      streakDays: 0
+    };
+    this.lessons = [
+      { id: 1, title: "Introdução à Libras", completed: false },
+      { id: 2, title: "Alfabeto Manual", completed: false },
+      { id: 3, title: "Números Básicos", completed: false },
+      { id: 4, title: "Cumprimentos e Saudações", completed: false },
+      { id: 5, title: "Família e Relacionamentos", completed: false }
+    ];
+  }
+
+  init() {
+    this.showMenu();
+  }
+
+  showMenu() {
+    const content = document.getElementById('content');
+    content.innerHTML = `
+      <ul class="theme-list">
+        ${this.themes.map(theme => `
+          <li class="theme-item" onclick="app.startTheme(${theme.id})">
+            <span class="theme-title">${theme.title}</span>
+            <div class="progress-bar">
+              <div class="progress" style="width: ${theme.progress}%"></div>
+            </div>
+          </li>
+        `).join('')}
+      </ul>
+    `;
+  }
+
+  startTheme(themeId) {
+    this.currentTheme = themeId;
+    this.currentQuestion = 0;
+    this.showQuestion();
+  }
+
+  showQuestion() {
+    const question = this.questions[this.currentTheme][this.currentQuestion];
+    const content = document.getElementById('content');
+    content.innerHTML = `
+      <div class="question-container">
+        <img src="${question.image}" alt="Libras sign" class="question-image">
+        <h2>${question.question}</h2>
+        <ul class="options-list">
+          ${question.options.map((option, index) => `
+            <li class="option-item" onclick="app.checkAnswer(${index})">${option}</li>
+          `).join('')}
+        </ul>
+      </div>
+    `;
+  }
+
+  checkAnswer(selectedIndex) {
+    const question = this.questions[this.currentTheme][this.currentQuestion];
+    const selectedOption = question.options[selectedIndex];
+    const optionItems = document.querySelectorAll('.option-item');
+    
+    optionItems[selectedIndex].classList.add(selectedOption === question.correctAnswer ? 'correct' : 'incorrect');
+    
+    if (selectedOption === question.correctAnswer) {
+      this.updateProgress();
+      setTimeout(() => {
+        this.nextQuestion();
+      }, 1000);
+    }
+  }
+
+  updateProgress() {
+    const theme = this.themes.find(t => t.id === this.currentTheme);
+    theme.progress = Math.min(100, theme.progress + (100 / this.questions[this.currentTheme].length));
+    this.saveProgress();
+    this.userProfile.xp += 10;
+    if (this.userProfile.xp >= this.userProfile.level * 100) {
+      this.userProfile.level++;
+    }
+  }
+
+  saveProgress() {
+    localStorage.setItem('librasAppProgress', JSON.stringify(this.themes));
+    localStorage.setItem('librasAppProfile', JSON.stringify(this.userProfile));
+  }
+
+  loadProgress() {
+    const savedProgress = localStorage.getItem('librasAppProgress');
+    const savedProfile = localStorage.getItem('librasAppProfile');
+    if (savedProgress) {
+      this.themes = JSON.parse(savedProgress);
+    }
+    if (savedProfile) {
+      this.userProfile = JSON.parse(savedProfile);
+    }
+  }
+
+  nextQuestion() {
+    this.currentQuestion++;
+    if (this.currentQuestion < this.questions[this.currentTheme].length) {
+      this.showQuestion();
+    } else {
+      this.showMenu();
+    }
+  }
+
+  showLessons() {
+    const content = document.getElementById('content');
+    content.innerHTML = `
+      <h2>Lições</h2>
+      <ul class="lesson-list">
+        ${this.lessons.map(lesson => `
+          <li class="lesson-item" onclick="app.showLessonContent(${lesson.id})">
+            <span class="lesson-title">${lesson.title}</span>
+            <span>${lesson.completed ? '✅' : '⏳'}</span>
+          </li>
+        `).join('')}
+      </ul>
+    `;
+  }
+
+  showLessonContent(lessonId) {
+    const lesson = this.lessons.find(l => l.id === lessonId);
+    let content = "";
+
+    switch(lessonId) {
+      case 1:
+        content = `
+          <h2>${lesson.title}</h2>
+          <p>Libras, ou Língua Brasileira de Sinais, é a língua de sinais utilizada pela comunidade surda brasileira.</p>
+          <p>Ela é reconhecida como meio legal de comunicação e expressão pela Lei nº 10.436/2002.</p>
+          <p>Libras é uma língua completa, com gramática própria e não é uma representação gestual do português.</p>
+        `;
+        break;
+      case 2:
+        content = `
+          <h2>${lesson.title}</h2>
+          <p>O alfabeto manual em Libras é usado para soletrar nomes próprios, palavras estrangeiras ou termos que não possuem sinais específicos.</p>
+          <p>Cada letra do alfabeto português tem uma configuração de mão correspondente em Libras.</p>
+          <img src="alfabeto_libras.svg" alt="Alfabeto em Libras" style="width: 100%; max-width: 500px;">
+        `;
+        break;
+      case 3:
+        content = `
+          <h2>${lesson.title}</h2>
+          <p>Os números em Libras são representados por configurações específicas de mão.</p>
+          <p>Os números de 1 a 5 são feitos com a palma da mão voltada para fora.</p>
+          <p>Os números de 6 a 10 são feitos com a palma da mão voltada para o sinalizador.</p>
+          <img src="numeros_libras.svg" alt="Números em Libras" style="width: 100%; max-width: 500px;">
+        `;
+        break;
+      case 4:
+        content = `
+          <h2>${lesson.title}</h2>
+          <p>Cumprimentos e saudações são essenciais para interações sociais em Libras.</p>
+          <p>Alguns cumprimentos comuns incluem:</p>
+          <ul>
+            <li>Olá</li>
+            <li>Bom dia</li>
+            <li>Boa tarde</li>
+            <li>Boa noite</li>
+            <li>Tudo bem?</li>
+          </ul>
+        `;
+        break;
+      case 5:
+        content = `
+          <h2>${lesson.title}</h2>
+          <p>Sinais relacionados à família são importantes para descrever relações pessoais.</p>
+          <p>Alguns sinais básicos de família incluem:</p>
+          <ul>
+            <li>Mãe</li>
+            <li>Pai</li>
+            <li>Irmão/Irmã</li>
+            <li>Avô/Avó</li>
+            <li>Tio/Tia</li>
+          </ul>
+        `;
+        break;
+    }
+
+    const contentDiv = document.getElementById('content');
+    contentDiv.innerHTML = `
+      <div class="lesson-content">
+        ${content}
+        <button onclick="app.showLessons()" class="nav-button">Voltar para Lições</button>
+      </div>
+    `;
+
+    lesson.completed = true;
+    this.saveProgress();
+  }
+
+  showProfile() {
+    const content = document.getElementById('content');
+    content.innerHTML = `
+      <div class="profile-container">
+        <img src="profile.svg" alt="Foto de perfil" class="profile-image">
+        <h2 class="profile-name">${this.userProfile.name}</h2>
+        <div class="profile-stats">
+          <div class="stat-item">
+            <div class="stat-value">${this.userProfile.xp}</div>
+            <div class="stat-label">XP</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">${this.userProfile.level}</div>
+            <div class="stat-label">Nível</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">${this.userProfile.streakDays}</div>
+            <div class="stat-label">Dias Seguidos</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+}
+
+const app = new LibrasApp();
+app.loadProgress();
+app.init();
+
+function showMenu() {
+  app.showMenu();
+}
+</script>
+</body>
+</html>
